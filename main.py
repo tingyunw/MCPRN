@@ -16,9 +16,9 @@ import torch
 import os
 from datetime import datetime as dt
 
-torch.cuda.set_device(0)
+torch.cuda.set_device(1)
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', default='jdata', help='dataset name: diginetica/yoochoose/yoochoose1_4/yoochoose1_64/sample')
+parser.add_argument('--dataset', default='yoochoose', help='dataset name: diginetica/yoochoose/yoochoose1_4/yoochoose1_64/sample')
 parser.add_argument('--train_batchSize', type=int, default=50, help='train input batch size')
 parser.add_argument('--test_batchSize', type=int, default=50, help='test input batch size')
 parser.add_argument('--hiddenSize', type=int, default=128, help='hidden state size')
@@ -49,15 +49,8 @@ def main():
 
     if opt.dataset == 'diginetica':
         n_node = 43098
-        # n_node = 43039+1
-    elif opt.dataset == 'yoochoose1_64' or opt.dataset == 'yoochoose1_4':
-        n_node = 37484
     elif opt.dataset == 'yoochoose':
-        n_node = 8937
-    elif opt.dataset == 'yoochoose_buy':
-        n_node = 7288
-    elif opt.dataset == 'jdata':
-        n_node = 44749
+        n_node = 7291
     else:
         n_node = 310
 
@@ -101,9 +94,7 @@ def main():
             best_epoch[1] = epoch
             flag = 1
         print('Best Result:')
-        print('\tRecall@20:\t%.4f\tMRR@20:\t%.4f\tEpoch:\t%d,\t%d'% (best_result[0], best_result[1], best_epoch[0], best_epoch[1]))
-        model_file = os.getcwd() + '/models/' + opt.dataset + '_%s_%s_%s_I1.pt' % (str(today.year), str(today.month), str(today.day))
-        torch.save(model.state_dict(), model_file)
+        print('\tRecall@20:\t%.4f\tMMR@20:\t%.4f\tEpoch:\t%d,\t%d'% (best_result[0], best_result[1], best_epoch[0], best_epoch[1]))
         bad_counter += 1 - flag
         if bad_counter >= opt.patience:
             break

@@ -11,33 +11,15 @@ import numpy as np
 import torch
 
 
-def build_graph(train_data):
-    graph = nx.DiGraph()
-    for seq in train_data:
-        for i in range(len(seq) - 1):
-            if graph.get_edge_data(seq[i], seq[i + 1]) is None:
-                weight = 1
-            else:
-                weight = graph.get_edge_data(seq[i], seq[i + 1])['weight'] + 1
-            graph.add_edge(seq[i], seq[i + 1], weight=weight)
-    for node in graph.nodes:
-        sum = 0
-        for j, i in graph.in_edges(node):
-            sum += graph.get_edge_data(j, i)['weight']
-        if sum != 0:
-            for j, i in graph.in_edges(i):
-                graph.add_edge(j, i, weight=graph.get_edge_data(j, i)['weight'] / sum)
-    return graph
-
-
 def data_masks(all_usr_pois, item_tail):
     #seq padding:post
     #us_pois:padding seq, us_masks:padding item or not, len_max: length of max seq
     us_lens = [len(upois) for upois in all_usr_pois]
     len_mean = np.mean(us_lens)
     len_max = max(us_lens)
-    # if len_max>=10:
-    #     len_max = 10
+    # len_max = 10
+    if len_max >= 20:
+        len_max = 20
     #length = 10
     us_pois = [item_tail * (len_max - le) + upois if le < len_max else upois[-len_max:] for upois, le in zip(all_usr_pois, us_lens)]
     # us_msks = [[0] * (len_max - le) + [1] * le  for le in us_lens]
@@ -60,7 +42,7 @@ def split_validation(train_set, valid_portion):
 
 
 class Data():
-    def __init__(self, data, n_node, shuffle=False, graph=None, n_negative=99):
+    def __init__(self, data, n_node, shuffle=False, graph=None, n_negative=199):
         inputs = data[0]
         inputs, mask, len_max = data_masks(inputs, [0])
         self.inputs = np.asarray(inputs)
@@ -73,7 +55,6 @@ class Data():
         self.n_node = n_node
         self.all_items = np.arange(1,self.n_node)
         self.n_negative = n_negative
-        #self.n_items = np.unique(self.inputs)
 
 
     def generate_batch(self, batch_size):

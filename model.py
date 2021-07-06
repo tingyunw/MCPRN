@@ -130,7 +130,6 @@ class SessionGraph(Module):
         all_interest_emb = []
         hidden = self.embedding(inputs).cuda()
         g_item_interest = self.item_weight_for_interest(hidden)
-        g_item_interest_ = g_item_interest.cpu().detach().numpy()
         #跑m個interst各自的GRU
         for i in range(self.n_interest):
             i_interest_emb = self.gnn[i](hidden, g_item_interest[:,:,i])
